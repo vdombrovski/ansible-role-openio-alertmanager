@@ -1,0 +1,25 @@
+#jinja2: lstrip_blocks: True
+# {{ ansible_managed }}
+
+global:
+  resolve_timeout: {{ openio_alertmanager_resolve_timeout }}
+
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+receivers:
+  {{ (openio_alertmanager_default_receivers + openio_alertmanager_custom_receivers +
+  (openio_alertmanager_simple_email_receiver if openio_alertmanager_simple_email_enabled else []))
+  | to_nice_yaml(indent=2) | indent(2) }}
+
+{% if openio_alertmanager_inhibit_rules | length > 0 %}
+inhibit_rules:
+  {{ openio_alertmanager_inhibit_rules | to_nice_yaml(indent=2) | indent(2) }}
+{% endif %}
+
+route:
+  {{ openio_alertmanager_route | to_nice_yaml() | indent(2) }}
+  routes:
+  {{ (openio_alertmanager_default_routes + openio_alertmanager_custom_routes + (openio_alertmanager_simple_email_route
+    if openio_alertmanager_simple_email_enabled else [])) | to_nice_yaml(indent=2) | indent(2, first=False) }}
+...
