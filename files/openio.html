@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>OpenIO notification: Incident {{ if gt (len .Alerts.Resolved) 0 }}resolved{{else if gt (len .Alerts.Firing) 0 }}detected{{ end }}</title>
+    <style></style>
+</head>
+
+<body itemscope itemtype="http://schema.org/EmailMessage">
+    <p>Dear customer,</p>
+
+    {{ if gt (len .Alerts.Firing) 0 }}
+    <p>Our monitoring system has detected <b>{{ len .Alerts.Firing }}</b> anomalies on your cluster. Here are the details:</p>
+
+    <ul>{{ range .Alerts.Firing }}
+        <li><h3>{{ index .Labels "alertname" }}</h3>
+        {{ if gt (index .Annotations "details") "0" }}
+        <div>
+            <h4>Details</h4>
+            <p>{{ .Annotations.details }}</p>
+        </div>
+        {{ end }}
+        {{ if gt (index .Annotations "details") "0" }}
+        <div>
+            <h4>Impact</h4>
+            <p>This incident affects
+            {{ if gt (index .Labels "service") "0" }} service <b>{{ .Labels.service }}</b>{{ end }}
+            {{ if gt (index .Labels "host") "0" }} on node <b>{{ .Labels.host }}</b>{{ end }}
+            {{ if gt (index .Labels "s_instance") "0" }} located at <b>{{ reReplaceAll "(.*)_(.*)_(.*)_(.*)_(.*)" "${1}.${2}.${3}.${4}:${5}" .Labels.s_instance }}</b>{{ end }}</p>
+        </div>
+        {{ end }}
+
+        {{ if gt (index .Annotations "solutions") "0" }}
+        <div>
+            <h4>Possible solutions</h4>
+            <p>{{ .Annotations.solutions }}</p>
+        </div>
+        {{ end }}
+        </li>
+    {{ end }}</ul>
+
+    <br/><div><p>
+    If you need help with resolving these issues, please contact our <a href="mailto:support@openio.io">support team</a>. You can also join us on <a href="https://openio-community.slack.com">Slack</a>
+    </p></div>
+
+    {{ else if gt (len .Alerts.Resolved) 0 }}
+    <p>The following anomalies have been resolved:</p>
+
+    <ul>{{ range .Alerts.Resolved }}
+        <li><h3>{{ index .Labels "alertname" }}</h3>
+        {{ if gt (index .Annotations "details") "0" }}
+        <div>
+            <h4>Details</h4>
+            <p>{{ .Annotations.details }}</p>
+        </div>
+        {{ end }}
+        {{ if gt (index .Annotations "details") "0" }}
+        <div>
+            <h4>Impact</h4>
+            <p>This anomaly was affecting
+            {{ if gt (index .Labels "service") "0" }} service <b>{{ .Labels.service }}</b>{{ end }}
+            {{ if gt (index .Labels "host") "0" }} on node <b>{{ .Labels.host }}</b>{{ end }}
+            {{ if gt (index .Labels "s_instance") "0" }} located at <b>{{ reReplaceAll "(.*)_(.*)_(.*)_(.*)_(.*)" "${1}.${2}.${3}.${4}:${5}" .Labels.s_instance }}</b>{{ end }}</p>
+        </div>
+        {{ end }}
+        </li>
+        <br/><br/>
+    {{ end }}</ul>
+    {{ end }}
+
+    Regards,<br/><br/>
+
+    <b>The OpenIO team<b>
+</body>
+</html>

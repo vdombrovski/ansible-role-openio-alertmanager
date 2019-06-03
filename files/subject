@@ -1,0 +1,1 @@
+OpenIO notification: {{ len .Alerts.Firing }} incidents {{ if gt (len .Alerts.Resolved) 0 }}resolved{{else if gt (len .Alerts.Firing) 0 }}detected{{ end }}

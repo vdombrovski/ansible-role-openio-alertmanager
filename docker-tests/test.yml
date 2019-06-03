@@ -1,0 +1,15 @@
+# Test playbook
+---
+- hosts: all
+  become: true
+  vars:
+    namespace: TRAVIS
+  roles:
+    - role: users
+    - role: role_under_test
+      openio_alertmanager_simple_email_enabled: true
+      openio_alertmanager_simple_email_from: "test@example.com"
+      openio_alertmanager_simple_email_to: [ "test@example.com", "test2@example.com" ]
+      openio_alertmanager_simple_email_smtp: "localhost"
+      openio_alertmanager_simple_email_pwd: ""
+...

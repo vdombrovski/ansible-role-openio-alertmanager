@@ -1,0 +1,53 @@
+---
+openio_alertmanager_bind_interface: "{{ openio_bind_mgmt_interface | d(ansible_default_ipv4.alias) }}"
+openio_alertmanager_bind_address: "{{ openio_bind_mgmt_address \
+  | default(hostvars[inventory_hostname]['ansible_' + openio_alertmanager_bind_interface]['ipv4']['address']) }}"
+openio_alertmanager_bind_port: 9093
+
+openio_alertmanager_config_dir: /etc/alertmanager
+openio_alertmanager_storage_path: /var/lib/alertmanager
+
+openio_alertmanager_service_enabled: true
+openio_alertmanager_provision_only: false
+
+openio_alertmanager_resolve_timeout: 3m
+
+openio_alertmanager_custom_receivers: []
+
+openio_alertmanager_simple_email_enabled: false
+openio_alertmanager_simple_email_from: ""
+openio_alertmanager_simple_email_to: []
+openio_alertmanager_simple_email_smtp: ""
+openio_alertmanager_simple_email_tls: false
+openio_alertmanager_simple_email_pwd: ""
+
+openio_alertmanager_simple_email_receiver:
+  - name: openio_email
+    email_configs:
+      - from: "{{ openio_alertmanager_simple_email_from }}"
+        smarthost: "{{ openio_alertmanager_simple_email_smtp }}"
+        to: "{{ openio_alertmanager_simple_email_to | join(',') }}"
+        require_tls: "{{ openio_alertmanager_simple_email_tls }}"
+        html: "{% raw %}{{ template \"openio.html\" . }}{% endraw %}"
+        auth_password: "{{ openio_alertmanager_simple_email_pwd }}"
+        headers:
+          subject: "{% raw %}{{ template \"subject\" . }}{% endraw %}"
+
+openio_alertmanager_simple_email_route:
+  - group_wait: 60s
+    group_interval: 60s
+    match_re:
+      severity: medium|high|low
+    receiver: openio_email
+
+openio_alertmanager_custom_routes: []
+
+openio_alertmanager_route:
+  group_by: [ 'alertname', 'host', 'service' ]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: default
+
+openio_alertmanager_inhibit_rules: []
+...
