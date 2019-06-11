@@ -1,0 +1,11 @@
+---
+- name: Install alertmanager
+  package:
+    name: "alertmanager"
+    state: present
+  ignore_errors: "{{ ansible_check_mode }}"
+  register: install_packages
+  until: install_packages is success
+  retries: 5
+  delay: 2
+...

@@ -21,7 +21,7 @@
 }
 
 @test 'Alertmanager config file exists' {
-  run bash -c "docker exec -ti ${SUT_ID} cat /etc/alertmanager/alertmanager.yml"
+  run bash -c "docker exec -ti ${SUT_ID} cat /etc/prometheus/alertmanager.yml"
   echo "output: "$output
   [[ "${status}" -eq "0" ]]
 }

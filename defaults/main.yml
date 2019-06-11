@@ -4,7 +4,7 @@ openio_alertmanager_bind_address: "{{ openio_bind_mgmt_address \
   | default(hostvars[inventory_hostname]['ansible_' + openio_alertmanager_bind_interface]['ipv4']['address']) }}"
 openio_alertmanager_bind_port: 9093
 
-openio_alertmanager_config_dir: /etc/alertmanager
+openio_alertmanager_config_dir: /etc/prometheus/
 openio_alertmanager_storage_path: /var/lib/alertmanager
 
 openio_alertmanager_service_enabled: true

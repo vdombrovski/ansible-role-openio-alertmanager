@@ -1,0 +1,71 @@
+---
+- name: Download alertmanager binary to local folder
+  become: false
+  unarchive:
+    src: "https://github.com/prometheus/alertmanager/releases/download/v{{ openio_alertmanager_version }}/\
+    alertmanager-{{ openio_alertmanager_version }}.linux-{{ go_arch_map[ansible_architecture]
+    | default(ansible_architecture) }}.tar.gz"
+    dest: "/tmp"
+    remote_src: true
+    creates: "/tmp/alertmanager-{{ openio_alertmanager_version }}.linux-{{ go_arch_map[ansible_architecture]
+      | default(ansible_architecture) }}/alertmanager"
+  register: _download_binary
+  until: _download_binary is success
+  retries: 5
+  delay: 2
+  # run_once: true
+  delegate_to: localhost
+  check_mode: false
+
+- name: Propagate alertmanager and amtool binaries
+  copy:
+    src: "/tmp/alertmanager-{{ openio_alertmanager_version }}.linux-{{ go_arch_map[ansible_architecture]
+      | default(ansible_architecture) }}/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    mode: 0755
+    owner: openio
+    group: openio
+  with_items:
+    - alertmanager
+    - amtool
+
+- name: Install SELinux dependencies on RedHat OS family
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - libselinux-python
+    - policycoreutils-python
+  register: _download_packages
+  until: _download_packages is success
+  retries: 5
+  delay: 2
+  when:
+    - ansible_os_family == "RedHat"
+
+- name: Allow alertmanager to bind to port in SELinux on RedHat OS family
+  seport:
+    ports: "{{ openio_alertmanager_bind_port }}"
+    proto: tcp
+    setype: http_port_t
+    state: present
+  when:
+    - ansible_version.full is version_compare('2.4', '>=')
+    - ansible_selinux.status == "enabled"
+
+- name: Ensure systemd directory exists
+  file:
+    path: "/usr/lib/systemd/system"
+    state: directory
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy systemd unit
+  copy:
+    src: "alertmanager.service"
+    dest: "/usr/lib/systemd/system/alertmanager.service"
+    owner: root
+    group: root
+    mode: 0644
+...

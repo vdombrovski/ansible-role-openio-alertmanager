@@ -6,6 +6,9 @@
     namespace: TRAVIS
   roles:
     - role: users
+    - role: repo
+      openio_repository_no_log: false
+      openio_repository_mirror_host: mirror2.openio.io
     - role: role_under_test
       openio_alertmanager_simple_email_enabled: true
       openio_alertmanager_simple_email_from: "test@example.com"
