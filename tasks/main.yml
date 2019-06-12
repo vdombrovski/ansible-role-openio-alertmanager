@@ -4,7 +4,9 @@
   with_first_found:
     - "{{ ansible_distribution }}.yml"
     - "{{ ansible_os_family }}.yml"
-  tags: install
+  tags:
+    - install
+    - configure
 
 - name: Create defaults file
   template:
@@ -14,6 +16,7 @@
     group: root
     mode: 0644
   register: _am_defaults
+  tags: configure
 
 - name: Create required directories
   file:
@@ -26,6 +29,7 @@
     - "{{ openio_alertmanager_config_dir }}"
     - "{{ openio_alertmanager_config_dir }}/templates"
     - "{{ openio_alertmanager_storage_path }}"
+  tags: configure
 
 - name: Set alertmanager configuration
   template:
@@ -33,9 +37,9 @@
     dest: "{{ openio_alertmanager_config_dir }}/alertmanager.yml"
     owner: root
     group: root
-    # validate: "amtool check-config %s"
-  tags: configure
+    validate: "amtool check-config %s"
   register: _am_conf
+  tags: configure
 
 - name: Ensure alertmanager service is started and enabled
   systemd:
@@ -45,6 +49,7 @@
     enabled: "{{ openio_alertmanager_service_enabled }}"
   when:
     - _am_defaults is changed or _am_conf is changed
+  tags: configure
 
 - name: Check that service is up
   uri:
@@ -58,4 +63,5 @@
     changed_when: false
   when:
     - not openio_alertmanager_provision_only
+  tags: configure
 ...

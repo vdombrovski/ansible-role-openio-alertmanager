@@ -16,6 +16,7 @@
   # run_once: true
   delegate_to: localhost
   check_mode: false
+  tags: install
 
 - name: Propagate alertmanager and amtool binaries
   copy:
@@ -28,6 +29,7 @@
   with_items:
     - alertmanager
     - amtool
+  tags: install
 
 - name: Install SELinux dependencies on RedHat OS family
   package:
@@ -42,6 +44,7 @@
   delay: 2
   when:
     - ansible_os_family == "RedHat"
+  tags: install
 
 - name: Allow alertmanager to bind to port in SELinux on RedHat OS family
   seport:
@@ -52,6 +55,7 @@
   when:
     - ansible_version.full is version_compare('2.4', '>=')
     - ansible_selinux.status == "enabled"
+  tags: install
 
 - name: Ensure systemd directory exists
   file:
@@ -60,6 +64,7 @@
     owner: root
     group: root
     mode: 0644
+  tags: install
 
 - name: Copy systemd unit
   copy:
@@ -68,4 +73,5 @@
     owner: root
     group: root
     mode: 0644
+  tags: install
 ...
