@@ -56,11 +56,11 @@
     url: "http://{{ openio_alertmanager_bind_address }}:{{ openio_alertmanager_bind_port }}"
     return_content: true
     status_code: 200
-    register: _am_check
-    retries: 3
-    delay: 5
-    until: _am_check is success
-    changed_when: false
+  register: _am_check
+  retries: 3
+  delay: 5
+  until: _am_check is success
+  changed_when: false
   when:
     - not openio_alertmanager_provision_only
   tags: configure
